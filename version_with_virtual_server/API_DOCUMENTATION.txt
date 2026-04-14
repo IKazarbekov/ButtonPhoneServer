@@ -1,0 +1,35 @@
+================================================================================
+                    BUTTON PHONE SERVER - DOCUMENTATION
+================================================================================
+
+Version: 1.0
+Platform: ESP8266 (Arduino framework) C++, Python 3.13 Flask
+Data: 2026-04-12
+
+================================================================================
+
+VIRTUAL SERVER
+
+Realisation: Python 3.13 Flask
+
+Description: virtual server connecting client and other server
+
+Accept clients to link /get
+    save request from client and send reload page
+
+Accept server to link /server
+    required password in request parameter PASSWORD for work 
+
+    send data first request  to link /server/get
+    accept answer to link /server/send
+
+Accept admin to link /admin
+    get information about virtual server /admin/info
+
+================================================================================
+
+SERVER
+
+Realisation: ESP8266 (Arduino framework) C++
+
+Description: server connect to client through virtual server
