@@ -17,72 +17,26 @@ False)
 def main_menu(login: str, button_phone: bool = False):
     return pb.create_page([
         pb.Card("KnoTl", [
-            [
-                pb.Label(f"Добро пожаловать: {login}"),
-            ],
-            [
+                pb.Label(f"Добро пожаловать: {login}", color="blue", size=1),
                 pb.Url("Чат", "/chat"),
-            ],
-            [
                 pb.Url("Крестики-Нолики", "/ttt"),
-            ],
-            [
-                pb.Url("О сайте", "#a"),
-            ],
-            [
+                pb.Url("Изучение языков", "/lang"),
+                pb.UrlCard("О сайте", "#a"),
                 pb.Url("выйти из сессии", "/login/exit"),
-            ]
         ], id="m"),
         pb.Card("О сайте", [
             pb.Label(f"Сайт для кнопочных телефонов, использует формат wml html, все скрипты происходят на сервере. Наслаждайтесь !"),
-            pb.Label(f"Версия: 0.2"),
-            pb.Url("В меню", "#m"),
+            pb.Label(f"Версия: 0.2", color="blue"),
+            pb.UrlCard("В меню", "#m"),
         ], id="a"),
+        pb.Card("Что нового", [
+            pb.Label(f"Добавлен формат wml"),
+            pb.UrlCard("В меню", "#m")
+        ])
     ], button_phone)
 
 def chat(messages: str, is_button_phone: bool = False) -> str:
-    if is_button_phone:
-        return f"""<?xml version="1.0"?>
-<!DOCTYPE wml PUBLIC "-//WAPFORUM//DTD WML 1.1//EN" "http://www.wapforum.org/DTD/wml_1.1.xml">
-<wml>
-
-<card id="chat" title="Чат" ontimer="">
-    <timer value="50"/>  <!-- 5 секунд (в 0.1 секунды = 50 = 5 сек) -->
-    
-    <p align="center">
-        <strong>Чат</strong><br/>
-        <br/>
-        ---------------------------------<br/>
-        {messages}
-        ---------------------------------<br/>
-        <br/>
-        <a href="#send">✏️ Написать сообщение</a><br/>
-        <br/>
-        <a href="chat.wml">↻ Обновить</a>
-    </p>
-</card>
-
-<card id="send" title="Отправка сообщения">
-    <p align="center">
-        <strong>Новое сообщение</strong><br/>
-        <br/>
-        Введите текст:<br/>
-        <input type="text" name="mes" size="20" maxlength="100" emptyok="false"/><br/>
-        <br/>
-        <anchor>📨 Отправить
-            <go href="chat.wml" method="post">
-                <postfield name="mes" value="$mes"/>
-                <postfield name="action" value="send"/>
-            </go>
-        </anchor><br/>
-        <br/>
-        <a href="#chat">◀ Назад в чат</a>
-    </p>
-</card>
-
-</wml>"""
-    else:
-        return f'''<!DOCTYPE html>
+    return f'''<!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
@@ -217,3 +171,19 @@ def winner_game(winner_string: str):
         </form>
     </body>
     </html>'''
+
+def language_menu(user_word: str, server_word1: str, server_word2: str, is_but_phone: bool, error: str = "", default_card: int = None):
+    return pb.create_page([
+        pb.Card("Языки",[
+            pb.UrlCard("Переводчик", "t")
+        ], id="m"),
+        pb.Card("Переводчик", [
+            pb.Label(error, color='red'),
+            pb.Form([
+               pb.TextBox("Слово","wrd", user_word)
+            ]),
+            pb.Label(server_word1),
+            pb.Label(server_word2),
+            pb.UrlCard("Назад", "m")
+        ], id="t")
+    ], is_but_phone, default_card=default_card)

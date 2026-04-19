@@ -1,4 +1,8 @@
 from abc import ABC, abstractmethod
+from turtledemo import colormixer
+
+from itsdangerous import NoneAlgorithm
+
 
 class PageObject(ABC):
     @abstractmethod
@@ -69,18 +73,20 @@ class Label(PageObject):
         self.color = color
 
     def get_wml(self) -> str:
-        return f"<p>{self.text}</p>"
+        if self.color is None:
+            return f"<p>{self.text}</p>"
+        else:
+            return f"<p color=\"{self.color}\">{self.text}</p>"
 
     def get_html(self) -> str:
-        match self.size:
-            case 0:
-                return f"<h5>{self.text}</h5>"
-            case 1:
-                return f"<h4>{self.text}</h4>"
-            case 2:
-                return f"<h3>{self.text}</h3>"
-            case 3:
-                return f"<h2>{self.text}</h2>"
+        page_obj = str()
+        color = self.color
+        if not color is None:
+            page_obj += f"<font color=\"{color}\">"
+        page_obj += f"<p size={self.size * 10 + 10}>{self.text}</p>"
+        if not color is None:
+            page_obj += "</font>"
+        return page_obj
 
 class Url(PageObject):
     def __init__(self,title: str, url: str):
@@ -92,6 +98,18 @@ class Url(PageObject):
     def get_html(self) -> str:
         return f"<a href={self.utl}>{self.title}</a>"
 
+class UrlCard(PageObject):
+    def __init__(self,title: str, url: str):
+        if url.startswith("#"):
+            self.url = url
+        else:
+            self.url = "#" + url
+        self.title = title
+
+    def get_wml(self) -> str:
+        return f"<a href={self.url}>{self.title}</a>"
+    def get_html(self) -> str:
+        return ""
 # ----------------------------- FORM SEND ----------------------------------------
 class InputPageObject(PageObject):
     def get_wml(self) -> str:
@@ -127,6 +145,15 @@ class Form(PageObject):
         form = str()
         for inp in self.inputs:
             form += inp.get_wml()
+        form += f"<anchor>Отправить<go method=\"get\""
+        if not self.url is None:
+            form += f" href=\"{self.url}\""
+        else:
+            form += f" href=\"\""
+        form += ">"
+        for inp in self.inputs:
+            form += f"<postfield name=\"{inp.param}\" value=\"${inp.param}\"/>"
+        form += "</go></anchor>"
         return form
 
 class TextBox(InputPageObject):
@@ -134,13 +161,23 @@ class TextBox(InputPageObject):
     TextBox - class denote input text box
         for user input and send form to server
     """
-    def __init__(self, title: str, param: str):
+    def __init__(self, title: str, param: str, default_value: str = None):
         self.title = title
         self.param = param
+        self.default_value = default_value
     def get_wml(self) -> str:
-        return f"<p>{self.title}</p><input type=\"text\" name=\"{self.param}\"/><br/>"
+        text_box = f"<p>{self.title}</p>"
+        text_box += f"<input type=\"text\" name=\"{self.param}\""
+        if not self.default_value is None:
+            text_box += f" value=\"{self.default_value}\""
+        text_box += "/>"
+        return text_box
     def get_html(self) -> str:
-        return f"<input type=\"text\" name=\"{self.param}\" placeholder=\"{self.title}\">"
+        text_box = f"<input type=\"text\" name=\"{self.param}\" placeholder=\"{self.title}\""
+        if not self.default_value is None:
+            text_box += f" value=\"{self.default_value}\""
+        text_box += f"/>"
+        return text_box
     def get_wml_post_field(self):
         return ""
 
@@ -174,13 +211,17 @@ class ConstParam(InputPageObject):
     def get_wml_post_field(self):
         return ""
 
-def create_page(cards: list, is_wml: bool = False):
+def create_page(cards: list, is_wml: bool = False, default_card: int = None):
     """
     create page from page objects
     :param data: this list of card list of string list of PageObjects
     :param is_wml: is wml page, if False, then html
     :return:
     """
+    if not default_card is None:
+        move_card = cards.pop(default_card)
+        cards.insert(0, move_card)
+
     page = ''
     if is_wml:
         page += '<?xml version="1.0"?><!DOCTYPE wml PUBLIC "-//WAPFORUM//DTD WML 1.1//EN" "http://www.wapforum.org/DTD/wml_1.1.xml"><wml>'

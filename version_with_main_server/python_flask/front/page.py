@@ -172,17 +172,18 @@ def winner_game(winner_string: str):
     </body>
     </html>'''
 
-def language_menu(user_word: str, server_word1: str, server_word2: str):
+def language_menu(user_word: str, server_word1: str, server_word2: str, is_but_phone: bool, error: str = "", default_card: int = None):
     return pb.create_page([
         pb.Card("Языки",[
             pb.UrlCard("Переводчик", "t")
         ], id="m"),
         pb.Card("Переводчик", [
+            pb.Label(error, color='red'),
             pb.Form([
-               pb.TextBox("Слово","word", user_word)
+               pb.TextBox("Слово","wrd", user_word)
             ]),
             pb.Label(server_word1),
             pb.Label(server_word2),
             pb.UrlCard("Назад", "m")
         ], id="t")
-    ])
+    ], is_but_phone, default_card=default_card)

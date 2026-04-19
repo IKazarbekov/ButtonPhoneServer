@@ -3,6 +3,7 @@ import chat, game
 from front import page
 import session
 import tictactoe
+from modul import language
 
 # application Flask
 application = Flask(__name__)
@@ -29,6 +30,8 @@ def log_guest():
     ip = request.remote_addr
 
     if 'log' in args:
+        if session.contains(ip):
+            session.remove(ip)
         if 'kno' in args:
             session.add_guest(ip, args['log'], True)
         else:
@@ -134,6 +137,25 @@ def ttt_game():
 @app.route('/game/exit')
 def exit_game():
     pass
+
+# language lessons menu
+@app.route('/lang')
+def language_menu():
+    args = request.args
+    ip = request.remote_addr
+    if not session.contains(ip):
+        return redirect('/login')
+    login, is_but_phone = session.get_log_and_but(ip)
+
+    if 'wrd' in args:
+        user_word = args['wrd'].lower()
+        try:
+            words = language.get_words(user_word)
+        except IndexError as e:
+            return page.language_menu(user_word, "", "", is_but_phone,"Не найден в словаре")
+        return page.language_menu(user_word, words[0], words[1], is_but_phone, default_card=1)
+
+    return page.language_menu("", "", "", is_but_phone)
 
 if __name__ == '__main__':
     application.run(host='0.0.0.0', port=5001)

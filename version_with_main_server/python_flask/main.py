@@ -3,6 +3,7 @@ import chat, game
 from front import page
 import session
 import tictactoe
+from modul import language
 
 # application Flask
 application = Flask(__name__)
@@ -144,9 +145,17 @@ def language_menu():
     ip = request.remote_addr
     if not session.contains(ip):
         return redirect('/login')
-    login = session.get_login(ip)
+    login, is_but_phone = session.get_log_and_but(ip)
 
-    return page.language_menu("Hehe", "UU", "awdw")
+    if 'wrd' in args:
+        user_word = args['wrd'].lower()
+        try:
+            words = language.get_words(user_word)
+        except IndexError as e:
+            return page.language_menu(user_word, "", "", is_but_phone,"Не найден в словаре")
+        return page.language_menu(user_word, words[0], words[1], is_but_phone, default_card=1)
+
+    return page.language_menu("", "", "", is_but_phone)
 
 if __name__ == '__main__':
     application.run(host='0.0.0.0', port=5001)

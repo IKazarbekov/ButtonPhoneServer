@@ -101,13 +101,13 @@ class Url(PageObject):
 class UrlCard(PageObject):
     def __init__(self,title: str, url: str):
         if url.startswith("#"):
-            self.utl = url
+            self.url = url
         else:
             self.url = "#" + url
         self.title = title
 
     def get_wml(self) -> str:
-        return f"<a href={self.utl}>{self.title}</a>"
+        return f"<a href={self.url}>{self.title}</a>"
     def get_html(self) -> str:
         return ""
 # ----------------------------- FORM SEND ----------------------------------------
@@ -145,6 +145,15 @@ class Form(PageObject):
         form = str()
         for inp in self.inputs:
             form += inp.get_wml()
+        form += f"<anchor>Отправить<go method=\"get\""
+        if not self.url is None:
+            form += f" href=\"{self.url}\""
+        else:
+            form += f" href=\"\""
+        form += ">"
+        for inp in self.inputs:
+            form += f"<postfield name=\"{inp.param}\" value=\"${inp.param}\"/>"
+        form += "</go></anchor>"
         return form
 
 class TextBox(InputPageObject):
@@ -202,13 +211,17 @@ class ConstParam(InputPageObject):
     def get_wml_post_field(self):
         return ""
 
-def create_page(cards: list, is_wml: bool = False):
+def create_page(cards: list, is_wml: bool = False, default_card: int = None):
     """
     create page from page objects
     :param data: this list of card list of string list of PageObjects
     :param is_wml: is wml page, if False, then html
     :return:
     """
+    if not default_card is None:
+        move_card = cards.pop(default_card)
+        cards.insert(0, move_card)
+
     page = ''
     if is_wml:
         page += '<?xml version="1.0"?><!DOCTYPE wml PUBLIC "-//WAPFORUM//DTD WML 1.1//EN" "http://www.wapforum.org/DTD/wml_1.1.xml"><wml>'
