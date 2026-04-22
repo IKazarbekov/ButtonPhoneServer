@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<!DOCTYPE wml PUBLIC "-//WAPFORUM//DTD WML 1.1//EN" "http://www.wapforum.org/DTD/wml_1.1.xml">
+
+<wml>
+    <card id="main" title="Моя страница">
+        <p align="center">
+            Привет, мир!<br/>
+            <a href="#about">О нас</a><br/>
+            <a href="tel:+123456789">Позвонить</a>
+        </p>
+        <anchor>
+            Отправить фото
+            <go href="upload.wml" method="post" enctype="multipart/form-data">
+                <postfield name="photo" value="$(photo)"/>
+            </go>
+        </anchor>
+    </card>
+    
+    <card id="about" title="О нас">
+        <p>
+            Это простая WML-страница.<br/>
+            <a href="#main">Назад</a>
+        </p>
+    </card>
+</wml>
